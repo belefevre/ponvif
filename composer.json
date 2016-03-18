@@ -1,0 +1,13 @@
+{
+    "name": "matthewbaggett/php-onvif",
+    "authors": [
+        {
+            "name": "Matthew Baggett",
+            "email": "matthew@baggett.me"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "classmap": ["lib/class.ponvif.php"]
+    }
+}
