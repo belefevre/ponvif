@@ -236,6 +236,41 @@ class ponvif
         }
     }
 
+    public function core_SetSystemDateAndTime($epoch = null)
+    {
+        if(!$epoch){
+            $epoch = time();
+        }
+        $post_string = '' .
+            '<?xml version="1.0" encoding="UTF-8"?>' .
+            '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope" xmlns:enc="http://www.w3.org/2003/05/soap-encoding" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2" xmlns:tt="http://www.onvif.org/ver10/schema" xmlns:tds="http://www.onvif.org/ver10/device/wsdl" xmlns:trt="http://www.onvif.org/ver10/media/wsdl" xmlns:tev="http://www.onvif.org/ver10/events/wsdl" xmlns:tptz="http://www.onvif.org/ver20/ptz/wsdl" xmlns:timg="http://www.onvif.org/ver20/imaging/wsdl" xmlns:trp="http://www.onvif.org/ver10/replay/wsdl" xmlns:tse="http://www.onvif.org/ver10/search/wsdl" xmlns:trc="http://www.onvif.org/ver10/recording/wsdl" xmlns:ter="http://www.onvif.org/ver10/error" >' .
+                '<s:Body>' .
+                    '<tds:SetSystemDateAndTime>' .
+                        '<tds:DateTimeType>Manual</tds:DateTimeType>' .
+                        '<tds:DaylightSavings>false</tds:DaylightSavings>' .
+                        '<tds:UTCDateTime>' .
+                            '<tt:Time>' .
+                                '<tt:Hour>' . date("H", $epoch) . '</tt:Hour>' .
+                                '<tt:Minute>' . date("i", $epoch) . '</tt:Minute>' .
+                                '<tt:Second>' . date("s", $epoch) . '</tt:Second>' .
+                            '</tt:Time>' .
+                            '<tt:Date>' .
+                                '<tt:Year>' . date("Y", $epoch) . '</tt:Year>' .
+                                '<tt:Month>' . date("m", $epoch) . '</tt:Month>' .
+                                '<tt:Day>' . date("d", $epoch) . '</tt:Day>' .
+                            '</tt:Date>' .
+                        '</tds:UTCDateTime>' .
+                    '</tds:SetSystemDateAndTime>' .
+                '</s:Body>' .
+            '</s:Envelope>';
+
+        if ($this->isFault($response = $this->_send_request($this->mediaurl, $post_string))) {
+            if ($this->intransingent) throw new Exception('SetSystemDateAndTime: Communication error');
+        } else {
+            return true;
+        }
+    }
+
     public function core_GetCapabilities()
     {
         $REQ = $this->_makeToken();
@@ -484,6 +519,8 @@ class ponvif
 
     public function ptz_RelativeMove($profileToken, $translation_pantilt_x, $translation_pantilt_y, $speed_pantilt_x, $speed_pantilt_y)
     {
+        echo "\nPantilt X: {$translation_pantilt_x}";
+        echo "\nPantilt Y: {$translation_pantilt_y}";
         if ($this->ptzurl == '') return array();
         $REQ = $this->_makeToken();
         $post_string = '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Header><Securlty s:mustUnderstand="1" xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurlty-secext-1.0.xsd"><UsernameToken><Username>%%USERNAME%%</Username><Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest">%%PASSWORD%%</Password><Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-securlty-1.0#Base64Binary">%%NONCE%%</Nonce><Created xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurlty-utility-1.0.xsd">%%CREATED%%</Created></UsernameToken></Securlty></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><RelativeMove xmlns="http://www.onvif.org/ver20/ptz/wsdl"><ProfileToken>%%PROFILETOKEN%%</ProfileToken><Translation><PanTilt x="%%TRANSLATIONPANTILTX%%" y="%%TRANSLATIONPANTILTY%%" space="http://www.onvif.org/ver10/tptz/PanTiltSpaces/TranslationGenericSpace" xmlns="http://www.onvif.org/ver10/schema"/></Translation><Speed><PanTilt x="%%SPEEDPANTILTX%%" y="%%SPEEDPANTILTY%%" space="http://www.onvif.org/ver10/tptz/PanTiltSpaces/GenericSpeedSpace" xmlns="http://www.onvif.org/ver10/schema"/></Speed></RelativeMove></s:Body></s:Envelope>';
