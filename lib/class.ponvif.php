@@ -711,7 +711,9 @@ class ponvif
         }
         $version['media'] = $capabilities['Media']['XAddr'];
         $version['device'] = $capabilities['Device']['XAddr'];
-        $version['event'] = $capabilities['Events']['XAddr'];
+        if(isset($capabilities['Events'])) {
+            $version['event'] = $capabilities['Events']['XAddr'];
+        }
         if (isset($capabilities['PTZ']['XAddr'])){
             $version['ptz'] = $capabilities['PTZ']['XAddr'];
         }  else {
