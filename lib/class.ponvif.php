@@ -733,7 +733,8 @@ class ponvif
         } else {
             // NVT is an encoder
             for ($i = 0; $i < count($videoSources); $i++) {
-                if (strtolower($videoSources[$i]['@attributes']['SignalActive']) == 'true') {
+                //Some NVR don't report SignalActive but only report active
+                if (!isset($videoSources[$i]['@attributes']['SignalActive']) || strtolower($videoSources[$i]['@attributes']['SignalActive']) == 'true') {
                     $sources[$i]['sourcetoken'] = $videoSources[$i]['@attributes']['token'];
                     $this->_getProfileData($sources, $i, $profiles);
                 }
